@@ -1,9 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public static class PlayerAction 
 {
+    // 存储摄像机的当前Y轴旋转角度
+    private static float camerangle = 0f;
+
+    public static void SetCameraangle( ref float angle)
+    {
+        camerangle = angle;
+    }
+
     public static bool MoveInput(ref PlayerMoveDirect playerMoveDirect, PlayerState playerState)
     {
         if (playerState == PlayerState.NormalMove)
@@ -37,13 +46,13 @@ public static class PlayerAction
     }
 
     /// <summary>
-    /// 
-    /// </summary>
     /// <param name="playerMoveDirect"><移动方向/param>
     /// <param name="playerState">当前的移动状态</param>
     /// <param name="speed">移动速度</param>
     /// <param name="player">移动对象</param>
     /// <param name="isBlock">是否锁定移动</param>
+    /// </summary>
+
     public static void PlayerMove(PlayerMoveDirect playerMoveDirect, PlayerState playerState, float speed, GameObject player, bool isBlock)
     {
         Vector3 playerMoveForward = Vector3.zero;
@@ -51,23 +60,56 @@ public static class PlayerAction
         switch (playerMoveDirect)
         {
             case PlayerMoveDirect.Forward:
-                playerMoveForward = Vector3.forward;
-                playerRotateForward = new Vector3(0, 0, 0);
+                if (camerangle == 0f)
+                {
+                    playerMoveForward = Vector3.forward;
+                    playerRotateForward = new Vector3(0, 0, 0);
+                }
+                else
+                {
+                    playerMoveForward = Quaternion.Euler(0, camerangle, 0) * Vector3.forward;
+                    playerRotateForward = new Vector3(0, camerangle, 0);
+                }
                 break;
 
             case PlayerMoveDirect.Left:
-                playerMoveForward = Vector3.left;
-                playerRotateForward = new Vector3(0, -90, 0);
+                if (camerangle == 0f)
+                {
+                    playerMoveForward = Vector3.left;
+                    playerRotateForward = new Vector3(0, -90, 0);
+                }
+                else
+                {
+                    playerMoveForward = Quaternion.Euler(0, camerangle, 0) * Vector3.left;
+                    playerRotateForward = new Vector3(0, camerangle - 90, 0);
+                }
+                
                 break;
 
             case PlayerMoveDirect.Back:
-                playerMoveForward = Vector3.back;
-                playerRotateForward = new Vector3(0, -180, 0);
+                if (camerangle == 0f)
+                {
+                    playerMoveForward = Vector3.back;
+                    playerRotateForward = new Vector3(0, -180, 0);
+                }
+                else
+                {
+                    playerMoveForward = Quaternion.Euler(0, camerangle, 0) * Vector3.back;
+                    playerRotateForward = new Vector3(0, camerangle-180, 0);
+                }
                 break;
 
             case PlayerMoveDirect.Right:
-                playerMoveForward = Vector3.right;
-                playerRotateForward = new Vector3(0, -270, 0);
+                if (camerangle == 0f)
+                {
+                    playerMoveForward = Vector3.right;
+                    playerRotateForward = new Vector3(0, -270, 0);
+                }
+                else
+                {
+                    playerMoveForward = Quaternion.Euler(0, camerangle, 0) * Vector3.right;
+                    playerRotateForward = new Vector3(0, camerangle - 270, 0);
+                }
                 break;
         }
 
@@ -81,6 +123,7 @@ public static class PlayerAction
             }
         }
     }
+    
 
     public static bool MoveInterval(ref float time, float moveIntervalTime)
     {

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum PlayerState
@@ -12,7 +13,7 @@ public enum PlayerMoveDirect
     Left,
     Right,
 }
-public class SimpleMove : MonoBehaviour
+public class PlayerMove : MonoBehaviour
 {
     [Header("玩家运动方向")]
     [SerializeField]
@@ -39,6 +40,7 @@ public class SimpleMove : MonoBehaviour
 
     [SerializeField]
     private float currentInterTime = 0;
+
     private void Start()
     {
         if (player == null)
@@ -65,6 +67,8 @@ public class SimpleMove : MonoBehaviour
             currentInterTime = 0;
             isPlayerInput = false;
             isMoveInterval = false;
+
         }
+        
     }
 }
