@@ -29,14 +29,14 @@ public class PlayerMove : MonoBehaviour
 
     [Header("玩家移动间隔")]
     public float PlayerMoveInterval = 0.25f;
-    //private Vector3 BasicDistance = new Vector3(0, 0, 0.8f);
 
     private GameObject player = null;
 
     private bool isPlayerInput = false;
     private bool isMoveInterval = false;
-    //判断是否阻挡
-    private bool isBlock = false;
+
+    public LayerMask layerMask;//检测层
+    public Vector3 boxCenter = new Vector3(0, -1f, 0);
 
     [SerializeField]
     private float currentInterTime = 0;
@@ -56,19 +56,41 @@ public class PlayerMove : MonoBehaviour
         }
 
         player.transform.rotation = Quaternion.Euler(Vector3.zero);
+        //Debug.Log("数值长度"+isWithBlock.Length);
     }
     void Update()
     {
         isPlayerInput = PlayerAction.MoveInput(ref playerMoveDirect, playerState);
         isMoveInterval = PlayerAction.MoveInterval(ref currentInterTime, PlayerMoveInterval);
+
+
         if (isPlayerInput == true && isMoveInterval == true)
         {
-            PlayerAction.PlayerMove(playerMoveDirect, playerState, Speed, player, isBlock);
+            PlayerAction.PlayerMove(playerMoveDirect, playerState, Speed, player, layerMask);
             currentInterTime = 0;
             isPlayerInput = false;
             isMoveInterval = false;
 
         }
-        
+    }
+
+    void OnDrawGizmos()
+    {
+        // 计算和检测时一模一样的中心点和半长宽高
+        float detectDistance = 1f;
+        Vector3 center = transform.position + transform.forward * detectDistance + boxCenter;
+        Vector3 halfExtents = new Vector3(0.25f, 0.25f, 0.25f);
+
+        Gizmos.color = Color.green;
+        // 绘制线框盒：中心点、半长宽高、旋转（必须和检测时的旋转一致）
+        Gizmos.DrawWireCube(center, halfExtents * 2);
+
+        float detectUpDistance = 1f;
+        Vector3 Upcenter = transform.position + transform.forward * detectUpDistance;
+        Vector3 UphalfExtents = new Vector3(0.25f, 0.25f, 0.25f);
+
+        Gizmos.color = Color.green;
+        // 绘制线框盒：中心点、半长宽高、旋转（必须和检测时的旋转一致）
+        Gizmos.DrawWireCube(Upcenter, UphalfExtents * 2);
     }
 }

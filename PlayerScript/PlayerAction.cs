@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public static class PlayerAction 
@@ -8,9 +9,17 @@ public static class PlayerAction
     // 存储摄像机的当前Y轴旋转角度
     private static float camerangle = 0f;
 
+    private static bool isBlock = false;
+    private static bool isUpBlock = false;
+    public static float detectDistance = 1f; // 检测距离
+    private static Vector3 boxCenter = new Vector3(0, -1f, 0);
+    public static Vector3 boxSize = new Vector3(0.25f, 0.25f, 0.25f); // 检测盒大小
+
     public static void SetCameraangle( ref float angle)
     {
         camerangle = angle;
+        //Debug.Log("角度：" + camerangle);
+        
     }
 
     public static bool MoveInput(ref PlayerMoveDirect playerMoveDirect, PlayerState playerState)
@@ -53,7 +62,7 @@ public static class PlayerAction
     /// <param name="isBlock">是否锁定移动</param>
     /// </summary>
 
-    public static void PlayerMove(PlayerMoveDirect playerMoveDirect, PlayerState playerState, float speed, GameObject player, bool isBlock)
+    public static void PlayerMove(PlayerMoveDirect playerMoveDirect, PlayerState playerState, float speed, GameObject player, LayerMask layerMask)
     {
         Vector3 playerMoveForward = Vector3.zero;
         Vector3 playerRotateForward = Vector3.zero;
@@ -112,18 +121,46 @@ public static class PlayerAction
                 }
                 break;
         }
+        
 
         if (playerState == PlayerState.NormalMove)
         {
             player.transform.rotation = Quaternion.Euler(playerRotateForward);
 
-            if (!isBlock)
+            isBlock = CheckForwardBlocked(playerMoveForward, player,layerMask);
+            isUpBlock = CheckForwardUpBlocked(playerMoveForward, player, layerMask);
+            Debug.Log("CanPass:" + isBlock);
+
+            if (isBlock && !isUpBlock)
             {
                 Move(player.transform, playerMoveForward, speed);
             }
         }
     }
-    
+    private static bool CheckForwardBlocked(Vector3 playerMoveForward ,GameObject player, LayerMask layerMask)
+    {
+
+        // 计算检测的中心点（在玩家前下方 detectDistance 处）
+        Vector3 center = player.transform.position + playerMoveForward * detectDistance + boxCenter;
+
+        // 进行盒体检测，不检测玩家自己的碰撞体（通过LayerMask过滤）
+        Collider[] colliders = Physics.OverlapBox(center, boxSize / 2, player.transform.rotation, layerMask);
+        Debug.Log("检测碰撞的个数：" + colliders.Length);
+        // 如果检测到任何碰撞体，返回 true（表示被阻挡）
+        return colliders.Length > 0;
+    }
+    private static bool CheckForwardUpBlocked(Vector3 playerMoveForward, GameObject player, LayerMask layerMask)
+    {
+
+        // 计算检测的中心点（在玩家前方 detectDistance 处）
+        Vector3 center = player.transform.position + playerMoveForward * detectDistance;
+
+        // 进行盒体检测，不检测玩家自己的碰撞体（通过LayerMask过滤）
+        Collider[] colliders = Physics.OverlapBox(center, boxSize / 2, player.transform.rotation, layerMask);
+        Debug.Log("检测碰撞的个数：" + colliders.Length);
+        // 如果检测到任何碰撞体，返回 true（表示被阻挡）
+        return colliders.Length > 0;
+    }
 
     public static bool MoveInterval(ref float time, float moveIntervalTime)
     {

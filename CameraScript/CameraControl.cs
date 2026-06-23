@@ -134,7 +134,11 @@ public class CameraControl : MonoBehaviour
         {
             UpdateCameraPosition();
         }
-        
+
+        if (rotateAngle >= 360f || rotateAngle <= -360)
+        {
+            rotateAngle = 0f;
+        }
         PlayerAction.SetCameraangle(ref rotateAngle);
     }
 
