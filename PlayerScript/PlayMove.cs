@@ -105,4 +105,14 @@ public class PlayerMove : MonoBehaviour
         // 绘制线框盒：中心点、半长宽高、旋转（必须和检测时的旋转一致）
         Gizmos.DrawWireCube(Upcenter, UphalfExtents * 2);
     }
+
+    public void PauseMove()
+    {
+        playerState = PlayerState.StopMove;
+    }
+
+    public void ResumeMove()
+    {
+        playerState = PlayerState.NormalMove;
+    }
 }
