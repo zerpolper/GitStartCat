@@ -28,9 +28,10 @@ public class PlayerMove : MonoBehaviour
     public float Speed = 1.0f;
 
     [Header("玩家移动间隔")]
-    public float PlayerMoveInterval = 0.25f;
+    public float PlayerMoveInterval = 0.1f;
 
     private GameObject player = null;
+    public GameObject Star;
 
     private bool isPlayerInput = false;
     private bool isMoveInterval = false;
@@ -55,11 +56,22 @@ public class PlayerMove : MonoBehaviour
             }
         }
 
+        if (Star == null)
+        {
+            Star = GameObject.Find("Star");
+        }
+
         player.transform.rotation = Quaternion.Euler(Vector3.zero);
         //Debug.Log("数值长度"+isWithBlock.Length);
     }
     void Update()
     {
+        if (Star.transform.childCount == 0)
+        {
+            playerState = PlayerState.StopMove;
+            Debug.Log("完成通过条件");
+        }
+
         isPlayerInput = PlayerAction.MoveInput(ref playerMoveDirect, playerState);
         isMoveInterval = PlayerAction.MoveInterval(ref currentInterTime, PlayerMoveInterval);
 
