@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,6 +27,17 @@ public class PlayerTrigger : MonoBehaviour
     //passPanel
     public Text starCountInPass;
     public Text timeInPass;
+
+    //interactive
+    public GameObject woodBoxMove;
+
+    //woodBox
+    public GameObject woodBox;
+    private bool isWoodBoxMove = false;
+    private float startTime;
+    public float moveDuration = 2f; // 移动耗时（秒）
+
+    public event Action<bool> boxCollide;
     void Start()
     {
         if (player == null)
@@ -43,6 +55,18 @@ public class PlayerTrigger : MonoBehaviour
         if (Star == null)
         {
             Star = GameObject.Find("Star");
+        }
+
+        if (woodBox == null)
+        {
+            if (this.gameObject.name == "woodBoxr" || this.gameObject.tag == "woodBox")
+            {
+                woodBox = this.gameObject;
+            }
+            else
+            {
+                woodBox = GameObject.Find("woodBox");
+            }
         }
 
         starCount.text = "0";
@@ -76,6 +100,21 @@ public class PlayerTrigger : MonoBehaviour
                 starCount.text =collectCount.ToString();
             }
         }
+        if (other.gameObject.tag == "woodBoxMoveTrigger")
+        {
+            woodBoxMove.SetActive(true);
+            boxCollide?.Invoke(true);
+        }
+
+
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "woodBoxMoveTrigger")
+        {
+            woodBoxMove.SetActive(false);
+            boxCollide?.Invoke(false);
+        }
     }
 
     private void UpdateTimerDisplay()
@@ -92,5 +131,13 @@ public class PlayerTrigger : MonoBehaviour
     {
         timeText = timerText.text;
         pauseTime.text = timeText;
+    }
+
+    public void ToDown()
+    {
+        //startTime = Time.time;
+        //isWoodBoxMove = true;
+        //Vector3 startPoint = woodBox.transform.position;
+        //WoodBoxAction.WoodBoxMove(ref isWoodBoxMove, woodBox, startTime, moveDuration);
     }
 }

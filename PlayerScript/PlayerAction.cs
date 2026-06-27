@@ -175,4 +175,5 @@ public static class PlayerAction
     {
         transform.Translate(forwardDirect * speed, Space.World);
     }
+
 }

@@ -42,6 +42,10 @@ public class PlayerMove : MonoBehaviour
     [SerializeField]
     private float currentInterTime = 0;
 
+    //woodBox
+    //public GameObject woodBox;
+    //private bool isWoodBoxMove = false;
+    //private float woodBoxMoveSpeed = 1.0f;
     private void Start()
     {
         if (player == null)
@@ -60,6 +64,18 @@ public class PlayerMove : MonoBehaviour
         {
             Star = GameObject.Find("Star");
         }
+
+        //if (woodBox == null)
+        //{
+        //    if (this.gameObject.name == "woodBoxr" || this.gameObject.tag == "woodBox")
+        //    {
+        //        woodBox = this.gameObject;
+        //    }
+        //    else
+        //    {
+        //        woodBox = GameObject.Find("woodBox");
+        //    }
+        //}
 
         player.transform.rotation = Quaternion.Euler(Vector3.zero);
         //Debug.Log("数值长度"+isWithBlock.Length);
@@ -115,4 +131,12 @@ public class PlayerMove : MonoBehaviour
     {
         playerState = PlayerState.NormalMove;
     }
+
+    
+    //public void ToDown()
+    //{
+    //    //playerState = PlayerState.StopMove;
+    //    isWoodBoxMove = true;
+    //    WoodBoxAction.WoodBoxMove(ref isWoodBoxMove, woodBox, woodBoxMoveSpeed);
+    //}
 }

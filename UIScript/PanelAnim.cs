@@ -7,11 +7,15 @@ using UnityEngine.Playables;
 
 public class PanelAnim : MonoBehaviour
 {
+    private WoodBoxControl _woodBoxControl; 
+
     public AnimationCurve showCurve;
     public AnimationCurve hideCurve;
     public float animationSpeed;
     public GameObject panel;
     public GameObject passPanel;
+    public GameObject waitImage;
+    public Image wait;
 
     public GameObject Star;
 
@@ -25,8 +29,19 @@ public class PanelAnim : MonoBehaviour
     private RectTransform rectTransformPass;
     private Vector2 originalAnchoredPositionPass;
     private float passPanelHeight;
+
+    private RectTransform waitTransform;
+    private Vector2 originalAnchoredPositionWait;
+    private float waitImageTime = 0;
+    private bool startWaitTime = false;
+    private void Awake()
+    {
+        _woodBoxControl = FindObjectOfType<WoodBoxControl>();
+        _woodBoxControl.woodBovMoving += ShowWait;
+    }
     void Start()
     {
+
         //PausePanel
         rectTransform = panel.GetComponent<RectTransform>();
         // 保存pause原始位置
@@ -36,10 +51,16 @@ public class PanelAnim : MonoBehaviour
 
         //PassPanel
         rectTransformPass = passPanel.GetComponent<RectTransform>();
-        // 保存pause原始位置
+        // 保存pass原始位置
         originalAnchoredPositionPass = rectTransformPass.anchoredPosition;
-        // 获取pause面板高度
+        // 获取pass面板高度
         passPanelHeight = rectTransformPass.rect.height;
+
+        //waitImage
+        waitTransform = waitImage.GetComponent<RectTransform>();
+        // 保存pass原始位置
+        originalAnchoredPositionWait = waitTransform.anchoredPosition;
+
 
         if (Star == null)
         {
@@ -89,12 +110,53 @@ public class PanelAnim : MonoBehaviour
         rectTran.anchoredPosition = endPos;
     }
 
+    IEnumerator HidewaitImage(RectTransform rectTran, GameObject gameObject, Vector2 rPos)
+    {
+        float timer = 0f;
+        Color color = wait.color;
+        Vector2 startPos = rPos;
+
+        Vector2 endPos = new Vector2(rPos.x, rPos.y + 25);
+
+        while (timer <= 1f)
+        {
+            float progress = hideCurve.Evaluate(timer);
+            rectTran.anchoredPosition = Vector2.Lerp(endPos, startPos, progress);
+
+            color.a = Mathf.Lerp(100, 0, timer);
+            wait.color = color;
+
+            timer += Time.deltaTime * animationSpeed;
+            yield return null;
+        }
+
+        // 确保最终位置准确
+        rectTran.anchoredPosition = endPos;
+        color.a = 0;
+        wait.color = color;
+    }
+
+    //异步重新加载场景
     IEnumerator LoadSceneAsync()
     {
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex);
         // 等待加载完成
         while (!asyncLoad.isDone)
         {
+            yield return null;
+        }
+    }
+
+    //异步加载新场景
+    IEnumerator LoadHomeAsyncScene(string sceneName)
+    {
+        // 开始异步加载场景
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+
+        // 等待场景加载完成
+        while (!asyncLoad.isDone)
+        {
+            // 这里的 yield return null 意味着每帧都会检查一次状态
             yield return null;
         }
     }
@@ -118,6 +180,14 @@ public class PanelAnim : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             showPausePanel();
+        }
+        if (startWaitTime)
+        {
+            waitImageTime += Time.deltaTime;
+            if (waitImageTime >= 0.8)
+            {
+                HideWait();
+            }
         }
     }
 
@@ -151,5 +221,21 @@ public class PanelAnim : MonoBehaviour
     public void ReStartInPass()
     {
         StartCoroutine(LoadSceneAsync());
+    }
+
+    public void LoadScene()
+    {
+        StartCoroutine(LoadHomeAsyncScene("SampleScene"));
+    }
+    public void ShowWait()
+    {
+        startWaitTime = true;
+        waitImage.SetActive(true);
+    }
+    public void HideWait()
+    {
+        startWaitTime = false;
+        StartCoroutine(HidewaitImage(waitTransform, waitImage, originalAnchoredPositionWait));
+        //waitImage.SetActive(false);
     }
 }
