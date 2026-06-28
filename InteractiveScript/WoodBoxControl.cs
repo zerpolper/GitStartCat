@@ -32,8 +32,13 @@ public class WoodBoxControl : MonoBehaviour
     [SerializeField]
     private bool canMove = false;
 
-    private Vector3 downPoint = new Vector3(1, -2, 2);
-    private Vector3 upPoint = new Vector3(1, 0, 2);
+    [SerializeField]
+    private bool touchWater = false;
+
+    private bool hasDownWater = false;
+
+    private Vector3 downPoint;
+    private Vector3 upPoint;
     private Vector3 orginPoint;
     float distanceDown = 0f;
     float distanceUp = 0f;
@@ -42,6 +47,7 @@ public class WoodBoxControl : MonoBehaviour
 
 
     public event Action woodBovMoving;
+    public event Action boxTouchWater;
     // Start is called before the first frame update
     private void Awake()
     {
@@ -62,6 +68,8 @@ public class WoodBoxControl : MonoBehaviour
             }
         }
         orginPoint = woodBox.transform.position;
+        downPoint = woodBox.transform.position - new Vector3(0, 2, 0);
+        upPoint = orginPoint;
     }
 
     // Update is called once per frame
@@ -89,6 +97,7 @@ public class WoodBoxControl : MonoBehaviour
     }
     public void toMove()
     {
+        
         if (Input.GetKeyDown(KeyCode.F))
         {
             if ((distanceUp > -1.9f && distanceUp < -0.2f) || (distanceDown > 0.2f && distanceDown < 1.9f))
@@ -97,15 +106,27 @@ public class WoodBoxControl : MonoBehaviour
                 woodBovMoving?.Invoke();
                 return;
             }
-            if (canMove && !isMove && !hasMove)
+            
+            if (!touchWater)
             {
-                isMove = true;
-                hasMove = true;
+                if (canMove && !isMove && !hasMove)
+                {
+                    isMove = true;
+                    hasMove = true;
+                }
             }
-            else if (canMove && isMove && hasMove)
+            if (canMove && isMove && hasMove)
             {
                 isMove = true;
                 hasMove = false;
+            }
+
+            if (touchWater)
+            {
+                if (!hasDownWater)
+                {
+                    boxTouchWater?.Invoke();
+                }
             }
         }
     }
@@ -118,21 +139,26 @@ public class WoodBoxControl : MonoBehaviour
             woodBovMoving?.Invoke();
             return;
         }
-        if (!isMove && !hasMove)
+
+        if (!touchWater)
         {
-            if (canMove)
+            if (canMove && !isMove && !hasMove)
             {
                 isMove = true;
                 hasMove = true;
             }
-
         }
-        else if (isMove && hasMove)
+        else if (canMove && isMove && hasMove)
         {
-            if (canMove)
+            isMove = true;
+            hasMove = false;
+        }
+
+        if (touchWater)
+        {
+            if (!hasDownWater)
             {
-                isMove = true;
-                hasMove = false;
+                boxTouchWater?.Invoke();
             }
         }
     }
@@ -143,7 +169,9 @@ public class WoodBoxControl : MonoBehaviour
         {
             float step = smoothSpeed * Time.deltaTime;
             transform.position = Vector3.Lerp(woodBox.transform.position, downPoint, step);
+            hasDownWater = true;
         }
+
     }
 
     public void WoodBoxMoveUp()
@@ -163,5 +191,24 @@ public class WoodBoxControl : MonoBehaviour
     private void StartWoodBoxMove(bool getmove)
     {
         canMove = getmove;
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Water")
+        {
+            touchWater = true;
+            //Debug.Log("接触水了");
+            
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "Water")
+        {
+            touchWater = false;
+            //Debug.Log("离开水了");
+            
+        }
     }
 }

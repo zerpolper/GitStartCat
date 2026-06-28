@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Playables;
+using System;
 
 public class PanelAnim : MonoBehaviour
 {
@@ -14,8 +15,12 @@ public class PanelAnim : MonoBehaviour
     public float animationSpeed;
     public GameObject panel;
     public GameObject passPanel;
+
     public GameObject waitImage;
     public Image wait;
+
+    public GameObject touchImage;
+    public Image touch;
 
     public GameObject Star;
 
@@ -30,14 +35,25 @@ public class PanelAnim : MonoBehaviour
     private Vector2 originalAnchoredPositionPass;
     private float passPanelHeight;
 
+    public bool allowStartpassPanel = false;
+    public event Action allowGetTime;
+
+    //请稍等
     private RectTransform waitTransform;
     private Vector2 originalAnchoredPositionWait;
     private float waitImageTime = 0;
     private bool startWaitTime = false;
+
+    //木箱接触水
+    private RectTransform touchTransform;
+    private Vector2 originalAnchoredPositionTouch;
+    private float touchImageTime = 0;
+    private bool startTouchTime = false;
     private void Awake()
     {
         _woodBoxControl = FindObjectOfType<WoodBoxControl>();
         _woodBoxControl.woodBovMoving += ShowWait;
+        _woodBoxControl.boxTouchWater += ShowTouch;
     }
     void Start()
     {
@@ -60,6 +76,11 @@ public class PanelAnim : MonoBehaviour
         waitTransform = waitImage.GetComponent<RectTransform>();
         // 保存pass原始位置
         originalAnchoredPositionWait = waitTransform.anchoredPosition;
+
+        //touchImage
+        touchTransform = touchImage.GetComponent<RectTransform>();
+        // 保存pass原始位置
+        originalAnchoredPositionTouch = touchTransform.anchoredPosition;
 
 
         if (Star == null)
@@ -110,7 +131,7 @@ public class PanelAnim : MonoBehaviour
         rectTran.anchoredPosition = endPos;
     }
 
-    IEnumerator HidewaitImage(RectTransform rectTran, GameObject gameObject, Vector2 rPos)
+    IEnumerator HideImage(RectTransform rectTran, GameObject gameObject, Vector2 rPos)
     {
         float timer = 0f;
         Color color = wait.color;
@@ -134,6 +155,7 @@ public class PanelAnim : MonoBehaviour
         rectTran.anchoredPosition = endPos;
         color.a = 0;
         wait.color = color;
+        gameObject.SetActive(false);
     }
 
     //异步重新加载场景
@@ -184,9 +206,17 @@ public class PanelAnim : MonoBehaviour
         if (startWaitTime)
         {
             waitImageTime += Time.deltaTime;
-            if (waitImageTime >= 0.8)
+            if (waitImageTime >= 0.8f)
             {
                 HideWait();
+            }
+        }
+        if (startTouchTime)
+        {
+            touchImageTime += Time.deltaTime;
+            if (touchImageTime >= 0.8f)
+            {
+                HideTouch();
             }
         }
     }
@@ -213,9 +243,12 @@ public class PanelAnim : MonoBehaviour
 
     public void ShowPassPanel()
     {
+        allowGetTime?.Invoke();
+
         hasPause = true;
         passPanel.SetActive(true);
         StartCoroutine(ShowPanel(rectTransformPass, passPanel, originalAnchoredPositionPass,passPanelHeight));
+
     }
 
     public void ReStartInPass()
@@ -227,6 +260,24 @@ public class PanelAnim : MonoBehaviour
     {
         StartCoroutine(LoadHomeAsyncScene("SampleScene"));
     }
+    public void NextScene()
+    {
+        Scene currentScene = SceneManager.GetActiveScene();
+        string SceneName = currentScene.name;
+        if (SceneName == "GametestWindow")
+        {
+            StartCoroutine(LoadHomeAsyncScene("GametestWindow 1"));
+        }
+        if (SceneName == "GametestWindow 1")
+        {
+            StartCoroutine(LoadHomeAsyncScene("GametestWindow 2"));
+        }
+        //if (SceneName == "GametestWindow")
+        //{
+        //    StartCoroutine(LoadHomeAsyncScene("GametestWindow 1"));
+        //}
+
+    }
     public void ShowWait()
     {
         startWaitTime = true;
@@ -235,7 +286,20 @@ public class PanelAnim : MonoBehaviour
     public void HideWait()
     {
         startWaitTime = false;
-        StartCoroutine(HidewaitImage(waitTransform, waitImage, originalAnchoredPositionWait));
+        StartCoroutine(HideImage(waitTransform, waitImage, originalAnchoredPositionWait));
         //waitImage.SetActive(false);
     }
+
+    public void ShowTouch()
+    {
+        startTouchTime = true;
+        touchImage.SetActive(true);
+    }
+    public void HideTouch()
+    {
+        startTouchTime = false;
+        StartCoroutine(HideImage(touchTransform, touchImage, originalAnchoredPositionTouch));
+        //touchImage.SetActive(false);
+    }
 }
+

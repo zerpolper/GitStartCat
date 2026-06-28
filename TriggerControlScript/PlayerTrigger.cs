@@ -1,12 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerTrigger : MonoBehaviour
 {
+    private PanelAnim _panelAnim;
+
     private GameObject player = null;
+    [Header("星星功能：")]
     public GameObject Star;
     private GameObject [] childStars;
     public Text starCount;
@@ -18,16 +22,21 @@ public class PlayerTrigger : MonoBehaviour
     [SerializeField] private int childCount = 0;
     [SerializeField] private int collectCount = 0;
 
+    [Header("时间：")]
     public Text timerText;       // 显示时间的UI文本
     public Text pauseTime;
     private float currentTime = 0f;
     private bool isTiming = false;
     private string timeText;
+    public event Action<string> timeNum;
 
+    [Header("通过面板：")]
     //passPanel
     public Text starCountInPass;
     public Text timeInPass;
+    public string passTime;
 
+    [Header("交互功能_木箱：")]
     //interactive
     public GameObject woodBoxMove;
 
@@ -38,8 +47,15 @@ public class PlayerTrigger : MonoBehaviour
     public float moveDuration = 2f; // 移动耗时（秒）
 
     public event Action<bool> boxCollide;
+
+    [Header("交互功能_水：")]
+    public GameObject switchButton;
+    public event Action<bool> On_Off;
     void Start()
     {
+        _panelAnim = FindObjectOfType<PanelAnim>();
+        _panelAnim.allowGetTime += GetTime;
+
         if (player == null)
         {
             if (this.gameObject.name == "Player" || this.gameObject.tag == "Player")
@@ -106,6 +122,11 @@ public class PlayerTrigger : MonoBehaviour
             boxCollide?.Invoke(true);
         }
 
+        if (other.gameObject.tag == "Switch")
+        {
+            switchButton.SetActive(true);
+            On_Off?.Invoke(true);
+        }
 
     }
     private void OnTriggerExit(Collider other)
@@ -114,6 +135,12 @@ public class PlayerTrigger : MonoBehaviour
         {
             woodBoxMove.SetActive(false);
             boxCollide?.Invoke(false);
+        }
+
+        if (other.gameObject.tag == "Switch")
+        {
+            switchButton.SetActive(false);
+            On_Off?.Invoke(false);
         }
     }
 
@@ -125,6 +152,7 @@ public class PlayerTrigger : MonoBehaviour
         int milliseconds = Mathf.FloorToInt((currentTime % 1) * 1000);
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         timeInPass.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+
     }
 
     public void getTime()
@@ -133,11 +161,9 @@ public class PlayerTrigger : MonoBehaviour
         pauseTime.text = timeText;
     }
 
-    public void ToDown()
+    private void GetTime()
     {
-        //startTime = Time.time;
-        //isWoodBoxMove = true;
-        //Vector3 startPoint = woodBox.transform.position;
-        //WoodBoxAction.WoodBoxMove(ref isWoodBoxMove, woodBox, startTime, moveDuration);
+        passTime = timeInPass.text;
+        timeNum?.Invoke(passTime);
     }
 }
