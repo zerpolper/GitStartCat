@@ -3,28 +3,34 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using OfficeOpenXml;
+using System;
+using UnityEngine.UI;
+using static UnityEngine.Rendering.ReloadAttribute;
 
 public class DateSave : MonoBehaviour
 {
     PlayerTrigger _playerTrigger;
-
-    string savePath = "D:/unity/StartCat/Assets/Data/timedata.xlsx";
+    string savePath = "E:/testSavrData/timedata.xlsx";
+    //string savePath = "D:/unity/StartCat/Assets/Data/timedata.xlsx";
     //string folderPath = Application.persistentDataPath + "/ExcelFiles";
     //string filePath;
     FileInfo fileInfo;
     private string currenttime;
+
+    public GameObject newimage;
     private void Start()
     {
         
         _playerTrigger = FindObjectOfType<PlayerTrigger>();
         _playerTrigger.timeNum += GetTime;
 
-        //if (!Directory.Exists(folderPath))
-        //{
-        //    Directory.CreateDirectory(folderPath);  // 创建文件夹
-        //}
-        //filePath = Path.Combine(folderPath, "timedata.xlsx");
         fileInfo = new FileInfo(savePath);
+
+        using (ExcelPackage package = new ExcelPackage(fileInfo))
+        {
+            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
+            package.Save();
+        }
     }
 
     void Update()
@@ -45,14 +51,32 @@ public class DateSave : MonoBehaviour
 
     IEnumerator SaveData(string time)
     {
+        //if (!File.Exists(savePath))
+        //{
+
+        //}
         if (fileInfo.Exists)
         {
             using (ExcelPackage package = new ExcelPackage(fileInfo))
             {
-                ExcelWorksheet worksheet_0 = package.Workbook.Worksheets.Add("Sheet1");
-                ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
-                worksheet.Cells[1, 1].Value = time;
+
+                ExcelWorksheet readWorksheet = package.Workbook.Worksheets[1];
+                string getTime = readWorksheet.Cells[1, 1].Value.ToString();
+                Debug.Log("表中数据:" + getTime);
+                TimeSpan t1 = TimeSpan.Parse("00:" + getTime);  // "00:00:07"
+                TimeSpan t2 = TimeSpan.Parse("00:" + time);  // "00:00:18"
+                if (t1 > t2)
+                {
+                    ExcelWorksheet writeWorksheet = package.Workbook.Worksheets[1];
+                    writeWorksheet.Cells[1, 1].Value = time;
+                    newimage.SetActive(true);
+                }
+
+                //ExcelWorksheet writeWorksheet = package.Workbook.Worksheets[1];
+                //writeWorksheet.Cells[1, 1].Value = time;
+                //newimage.SetActive(true);
                 package.Save();
+
             }
         }
         

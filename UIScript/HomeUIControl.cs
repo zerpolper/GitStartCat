@@ -28,6 +28,13 @@ public class HomeUIControl : MonoBehaviour
     {
         
     }
+    public void ClickQuitButton()
+    {
+        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
 
     public void LoadScene()
     {

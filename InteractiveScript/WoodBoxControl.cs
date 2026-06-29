@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum WoodBoxState
 {
@@ -97,38 +98,79 @@ public class WoodBoxControl : MonoBehaviour
     }
     public void toMove()
     {
-        
-        if (Input.GetKeyDown(KeyCode.F))
+        Scene currentScene = SceneManager.GetActiveScene();
+        string SceneName = currentScene.name;
+        if (SceneName == "GametestWindow 1")
         {
-            if ((distanceUp > -1.9f && distanceUp < -0.2f) || (distanceDown > 0.2f && distanceDown < 1.9f))
+            if (Input.GetKeyDown(KeyCode.F))
             {
-                Debug.Log("向上时");
-                woodBovMoving?.Invoke();
-                return;
-            }
-            
-            if (!touchWater)
-            {
-                if (canMove && !isMove && !hasMove)
+                if ((distanceUp > -1.9f && distanceUp < -0.2f) || (distanceDown > 0.2f && distanceDown < 1.9f))
+                {
+                    Debug.Log("向上时");
+                    woodBovMoving?.Invoke();
+                    return;
+                }
+
+                if (!touchWater)
+                {
+                    if (canMove && !isMove && !hasMove)
+                    {
+                        isMove = true;
+                        hasMove = true;
+                        return;
+                    }
+                }
+                if (canMove && isMove && hasMove)
                 {
                     isMove = true;
-                    hasMove = true;
+                    hasMove = false;
                 }
-            }
-            if (canMove && isMove && hasMove)
-            {
-                isMove = true;
-                hasMove = false;
-            }
 
-            if (touchWater)
-            {
-                if (!hasDownWater)
+                if (touchWater)
                 {
-                    boxTouchWater?.Invoke();
+                    if (!hasDownWater)
+                    {
+                        boxTouchWater?.Invoke();
+                    }
                 }
             }
         }
+        if (SceneName == "GametestWindow 2")
+        {
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                if ((distanceUp > -1.9f && distanceUp < -0.2f) || (distanceDown > 0.2f && distanceDown < 1.9f))
+                {
+                    Debug.Log("向上时");
+                    woodBovMoving?.Invoke();
+                    return;
+                }
+
+                if (!touchWater)
+                {
+                    if (canMove && !isMove && !hasMove)
+                    {
+                        isMove = true;
+                        hasMove = true;
+                    }
+
+                }
+                else if (canMove && isMove && hasMove)
+                {
+                    isMove = true;
+                    hasMove = false;
+                }
+
+                if (touchWater)
+                {
+                    if (!hasDownWater)
+                    {
+                        boxTouchWater?.Invoke();
+                    }
+                }
+            }
+        }
+            
     }
 
     public void UIToMove()

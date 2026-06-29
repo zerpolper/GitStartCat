@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class LevelUIControl : MonoBehaviour
 {
-    // Start is called before the first frame update
     void Start()
     {
 
@@ -23,7 +22,6 @@ public class LevelUIControl : MonoBehaviour
             yield return null;
         }
     }
-    // Update is called once per frame
     void Update()
     {
 
@@ -32,5 +30,13 @@ public class LevelUIControl : MonoBehaviour
     public void LoadGame_1Scene()
     {
         StartCoroutine(LoadGamingAsyncScene("GametestWindow"));
+    }
+    public void LoadGame_2Scene()
+    {
+        StartCoroutine(LoadGamingAsyncScene("GametestWindow 1"));
+    }
+    public void LoadGame_3Scene()
+    {
+        StartCoroutine(LoadGamingAsyncScene("GametestWindow 2"));
     }
 }

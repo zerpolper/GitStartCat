@@ -14,6 +14,11 @@ public class SetUIControl : MonoBehaviour
     public GameObject FunctionButton;
     public GameObject MoreHeightButton;
     public GameObject MoreButton;
+
+    public GameObject qualityPanel;
+    public GameObject VoicePanel;
+    public GameObject FunctionPanel;
+    public GameObject MorePanel;
     private void Start()
     {
         //SetPanel.SetActive(false);
@@ -36,10 +41,12 @@ public class SetUIControl : MonoBehaviour
     {
         // activeSelf检查当前是否激活，然后取反
         QualityHeightButton.SetActive(true);
+        qualityPanel.SetActive(true);
     }
     public void QualityHeightHide()
     {
         QualityHeightButton.SetActive(false);
+        qualityPanel.SetActive(false);
     }
 
     public void QualityShow()
@@ -56,10 +63,12 @@ public class SetUIControl : MonoBehaviour
     {
         // activeSelf检查当前是否激活，然后取反
         VoiceHeightButton.SetActive(true);
+        VoicePanel.SetActive(true);
     }
     public void VoiceHeightHide()
     {
         VoiceHeightButton.SetActive(false);
+        VoicePanel.SetActive(false);
     }
 
     public void VoiceShow()
@@ -76,10 +85,12 @@ public class SetUIControl : MonoBehaviour
     {
         // activeSelf检查当前是否激活，然后取反
         FunctionHeightButton.SetActive(true);
+        FunctionPanel.SetActive(true);
     }
     public void FunctionHeightHide()
     {
         FunctionHeightButton.SetActive(false);
+        FunctionPanel.SetActive(false);
     }
 
     public void FunctionShow()
@@ -96,10 +107,12 @@ public class SetUIControl : MonoBehaviour
     {
         // activeSelf检查当前是否激活，然后取反
         MoreHeightButton.SetActive(true);
+        MorePanel.SetActive(true);
     }
     public void MoreHeightHide()
     {
         MoreHeightButton.SetActive(false);
+        MorePanel.SetActive(false);
     }
 
     public void MoreShow()
